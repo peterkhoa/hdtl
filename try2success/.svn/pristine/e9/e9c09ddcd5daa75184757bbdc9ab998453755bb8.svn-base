@@ -1,2 +1,0 @@
-﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="profile.ascx.cs" Inherits="hoachdinhtuonglai.control.Home.profile" %>
-<div>Website đang thực hiện chức năng xem profile, bạn hãy quay lại sau nhé.</div>
