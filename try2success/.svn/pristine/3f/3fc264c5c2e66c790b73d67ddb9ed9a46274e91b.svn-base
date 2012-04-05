@@ -1,0 +1,53 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+
+namespace hoachdinhtuonglai.control.Post
+{
+    public partial class post : BaseUserControl
+    {
+        public long id;
+        protected hoachdinhtuonglai.Post posts ;//= new hoachdinhtuonglai.Post();
+        protected string mess;
+        protected CommentCollection listComment = new CommentCollection();
+        public int page = 1;
+        public int pagesize = 20;
+        protected PostCollection listPost = new PostCollection();
+        protected double countPage = 0;
+        protected bool is_owner = false;
+        
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            long.TryParse(Request["id"], out id);
+            if (id > 0)
+            {
+                posts = PostDA.SelectByID(id);
+                if (posts == null)
+                {
+                    mess = "Bài viết này không có, bạn hãy liên hệ với Admin về sự cố này.";
+                    return;
+                }
+                else
+                {
+                    listPost = PostDA.SelectPostRelation(posts.CateID.Value, posts.ObjectID.Value, id, 4);
+                }
+
+                posts.View += 1;
+
+                PostDA.Update(posts);
+
+                //listComment = CommentDA.SelectByObjectID(id,page,pagesize);
+
+            }
+            else
+            {
+                //string cateSlug = Request["page"];
+                //listPost = PostDA.SelectByCateNameSlug(cateSlug,page,pagesize);
+                //countPage = PostDA.countAll(cateSlug);
+            }
+        }
+    }
+}

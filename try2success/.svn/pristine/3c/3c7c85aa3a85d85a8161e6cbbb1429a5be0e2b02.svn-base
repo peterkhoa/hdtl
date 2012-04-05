@@ -1,0 +1,49 @@
+﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="header.ascx.cs" Inherits="hoachdinhtuonglai.control.Commons.header" %>
+<%--<%@ Register src="login.ascx" tagname="login" tagprefix="uc1" %>--%>
+<div style="padding:5px; width:100%;" class="mainheader">
+    <div class="logo"><a href="/?page=home"><img src="https://lh6.googleusercontent.com/-rl8cwc2uXI8/T1HbLgam87I/AAAAAAAAAA0/eiyY1IH8glM/s500-c-k/logo1_small2.png" alt="" height="120px" /></a></div>
+    <div class="bannertop"><img src="/images/main/bannertop.jpg" alt="" height="120px" /></div>
+    <div style="width:100%; display:inline-block;">
+        <ul class="glossymenu">
+	<li id="home"><a href="/"><b>Home</b></a></li>
+	<li id="chiase"><a id="chia_se" class="mn" href="/chia-se/" onclick="return addClassNew();"><b>Chia sẻ</b></a></li>
+	<li id="hoinhom"><a id="hoi_nhom" class="mn" href="/hoi-nhom/" onclick="return addClassNew();"><b>Hội-Nhóm</b></a></li>	
+	<li id="tailieu"><a id="tai_lieu" class="mn" href="/tai-lieu/" onclick="return addClassNew();"><b>Kho tài liệu</b></a></li>	
+	<li id="vieclam"><a id="viec_lam" class="mn" href="/viec-lam/" onclick="return addClassNew();"><b>Việc làm</b></a></li>	
+	<li id="hinhanh"><a id="hinh_anh" class="mn" href="/hinh-anh/" onclick="return addClassNew();"><b>Gallery</b></a></li>	
+</ul>
+<%
+    if (account != null)
+    {
+    %>
+    <div class="common">Chào <span style="font-size:13px;font-weight:bold;"><%=account.LastName %></span><span>&nbsp;&nbsp;&nbsp; <a href="/?page=dang-nhap&signout=true" title="Sign Out">Thoát</a></span></div>
+    <%
+    }
+    else
+    {
+     %>
+    <div class="common">
+        <a href="/dang-nhap/<%=current_url %>" class="button highlight very large" id="login">Đăng nhập</a> <a href="/dang-ky/" class="button showlight very large">Đăng ký</a>
+    </div><%} %>
+    </div>
+    <div id="loginshow" class="btn" style="display:<%=display%>;">
+        <div>
+        <%--<uc1:login ID="login1" runat="server" /></div>--%>
+        <div class="close"><img src="http://dl.dropbox.com/u/19053289/DV/close.png" width="16px" alt="close" /></div>
+        
+    </div>
+    <input type="hidden" id="pagehide" value="<%=page %>" />
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var id = $('#pagehide').val();
+
+        id = id.replace("-", "");
+        if (id == '')
+            id = 'home';
+        $('#' + id).addClass("current");
+    });
+
+    
+</script>

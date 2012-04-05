@@ -1,0 +1,190 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.ComponentModel;
+
+namespace hoachdinhtuonglai
+{
+    public class Forum
+    {
+        private int _ID;
+
+        public int ID
+        {
+            get { return _ID; }
+            set { _ID = value; }
+        }
+
+        private string _ForumName;
+
+        public string ForumName
+        {
+            get { return _ForumName; }
+            set { _ForumName = value; }
+        }
+
+        private int _CateID;
+
+        public int CateID
+        {
+            get { return _CateID; }
+            set { _CateID = value; }
+        }
+
+        private string _ForumNameSlug;
+
+        public string ForumNameSlug
+        {
+            get { return _ForumNameSlug; }
+            set { _ForumNameSlug = value; }
+        }
+
+        private System.Nullable<int> _Order;
+
+        public System.Nullable<int> Order
+        {
+            get { return _Order; }
+            set { _Order = value; }
+        }
+
+        private System.Nullable<bool> _Active;
+
+        public System.Nullable<bool> Active
+        {
+            get { return _Active; }
+            set { _Active = value; }
+        }
+    }
+
+    public class ForumCollection : List<Forum>
+    {
+        public ForumCollection() { }
+        public ForumCollection(IEnumerable<Forum> list) : base(list) { }
+    }
+
+    [DataObject]
+    public static class ForumDA
+    {
+        static Database petapoco = ConnectionPP.getConnection();
+        public static ForumCollection SelectAll()
+        {
+            //var petapoco = ConnectionPP.getConnection();
+
+            petapoco.EnableAutoSelect = false;
+            petapoco.EnableNamedParams = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            ForumCollection acc = new ForumCollection(petapoco.Fetch<Forum>(@"Select * from Forum"));
+            return acc;
+        }
+
+        public static ForumCollection SelectAllNonActive()
+        {
+            //var petapoco = ConnectionPP.getConnection();
+
+            petapoco.EnableAutoSelect = false;
+            petapoco.EnableNamedParams = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            ForumCollection acc = new ForumCollection(petapoco.Fetch<Forum>(@"Select * from Forum where Activate=0"));
+            return acc;
+        }
+
+
+
+        public static Forum SelectByID(long id)
+        {
+            //var petapoco = ConnectionPP.getConnection();
+
+            petapoco.EnableNamedParams = false;
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            Forum ac = petapoco.FirstOrDefault<Forum>(@"Select * from Forum where id=@0", id);
+
+            return ac;
+        }
+
+        public static ForumCollection SelectByForumNameSlug(string name)
+        {
+            name = name.Trim().ToLower();
+            //var petapoco = ConnectionPP.getConnection();
+
+            petapoco.EnableNamedParams = false;
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            ForumCollection ac = new ForumCollection(petapoco.Fetch<Forum>(@"Select * from Forum where ForumNameSlug=@0", name));
+
+            return ac;
+        }
+
+        public static Forum SelectByCateID(long cateid)
+        {
+
+            //var petapoco = ConnectionPP.getConnection();
+
+            petapoco.EnableNamedParams = false;
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            Forum ac = (petapoco.FirstOrDefault<Forum>(@"Select * from Forum where CateID=@0", cateid));
+
+            return ac;
+        }
+
+
+        public static ForumCollection SelectForumSByPageSize(int page, int pagesize)
+        {
+            if (page == 0)
+                page = 1;
+            //var petapoco = ConnectionPP.getConnection();
+
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            ForumCollection acc = new ForumCollection(petapoco.Fetch<Forum>(@"Select * from Forum where Activate=1").Skip((page - 1) * pagesize).Take(page * pagesize));
+
+            return acc;
+        }
+
+        public static long Update(Forum Forum)
+        {
+            //var petapoco = ConnectionPP.getConnection();
+
+            petapoco.EnableAutoSelect = false;
+            petapoco.EnableNamedParams = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            long x = petapoco.Update("Forum", "ID", Forum, Forum.ID);
+            return x;
+        }
+
+        public static long Insert(Forum Forum)
+        {
+            //var petapoco = ConnectionPP.getConnection();
+
+            petapoco.EnableAutoSelect = false;
+
+            petapoco.ForceDateTimesToUtc = false;
+
+            var x = petapoco.Insert("Forum", "ID", true, Forum);
+
+            return long.Parse(x.ToString());
+        }
+
+        public static long Delete(Forum Forum)
+        {
+            //var petapoco = ConnectionPP.getConnection();
+
+            petapoco.EnableAutoSelect = false;
+            petapoco.EnableNamedParams = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            long x = petapoco.Delete("Forum", "ID", Forum, Forum.ID);
+
+            return x;
+        }
+    }
+}

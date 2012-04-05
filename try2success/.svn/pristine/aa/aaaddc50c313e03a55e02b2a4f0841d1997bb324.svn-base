@@ -1,0 +1,20 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace hoachdinhtuonglai
+{
+    public class Voting
+    {
+        private long _ID;
+
+        private long _ObjID;
+
+        private string _Type;
+
+        private string _UserName;
+
+        private long _AccountID;
+    }
+}

@@ -1,0 +1,42 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using Library;
+namespace hoachdinhtuonglai
+{
+    public static class LinkBuilder
+    {
+        static string url_profile = "/t2s/";
+        public static string getLinkProfile(long accountid)
+        {
+            
+            Account account = AccountDA.SelectByID(accountid);
+            return url_profile + account.Username;
+        }
+
+        public static string getLinkProfile(string username)
+        {
+            
+            return url_profile + username;
+        }
+
+        public static string getLinkProfile(Account account)
+        {
+                  
+            return url_profile + account.Username;
+        }
+
+        public static string getLinkPost(long postid, int cateid, string title)
+        {
+            title = LanguageConvert.RemoveSpecialCharacters(title);
+            return "/" + CategoriesEnums.getCateName(cateid) + "-" + postid + "-"+ title + ".html";
+        }
+
+        public static string getLinkPost(long postid, string title)
+        {
+            title = LanguageConvert.RemoveSpecialCharacters(title);
+            return "/bai-viet/" + title + "-" + postid + ".html";
+        }
+    }
+}

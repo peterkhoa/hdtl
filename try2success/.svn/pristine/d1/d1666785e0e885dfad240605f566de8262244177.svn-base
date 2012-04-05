@@ -1,0 +1,49 @@
+﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="sharing.ascx.cs" Inherits="hoachdinhtuonglai.control.Commons.sharing" %>
+<%@ Import Namespace="hoachdinhtuonglai" %>
+<div class="categorybox">
+    <div><a href="/?page=compose">Viết chia sẻ</a></div>
+    <hr />
+    <br />
+    <div>
+        <h2>Đọc gì hôm nay ?</h2>
+        <hr />
+        <div>
+            <%
+                Account ac = new Account();
+                string link, title, shortContent;
+                if (listPost.Count > 0)
+                {
+                    foreach (Post p in listPost)
+                    {
+                        link = LinkBuilder.getLinkProfile(p.UserName);
+                        title = p.Title;
+                        shortContent = Library.LanguageConvert.StripHtml(p.Content, false);
+                        shortContent = shortContent.Length > 500 ? shortContent.Substring(0, shortContent.IndexOf(" ", 450)) : shortContent;
+                        if (title.Length > 100)
+                        {
+                            title = title.Substring(0, title.LastIndexOf(" ", 80));
+                            title += " ...";
+                        }
+                        
+                %>
+                <div>
+                    <div class="listleft">
+                        <div class="avartar">
+                            <div><a href="<%=link %>" ><img src="<%=p.getLinkAvatar() %>" alt="" /></a></div>
+                            <div><a href="<%=link %>" ><%=p.UserName%></a></div>
+                        </div>
+                    </div>
+                    <div class="listright">
+                        <div class="post_title"><a href="<%=LinkBuilder.getLinkPost(p.ID, p.Title) %>" title=""><%=title%></a></div>
+                        <div class="note"><span>Xem (<%=p.View%>)</span> <span>Thích (<%=p.Vote%>)</span><span>Gửi bởi <a href="<%=link %>"><%=p.UserName %></a></span></div>
+                        <div class="post_content"><%=shortContent%></div>
+                    </div>
+                </div>
+                
+                <%
+                    }
+                }
+                 %>
+        </div>
+    </div>
+</div>

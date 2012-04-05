@@ -1,0 +1,550 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+using System.ComponentModel;
+using System.Web.Caching;
+using System.Web;
+
+namespace hoachdinhtuonglai
+{
+    public partial class Post
+    {
+       
+
+        public string getLinkAvatar()
+        {
+            Account a = AccountDA.SelectByID(_AccountID);
+            if (a != null)
+            {
+                return a.Avatar;
+            }
+            return "";
+        }
+    }
+
+    public class PostCollection : List<Post>
+    {
+        public PostCollection() { }
+        public PostCollection(IEnumerable<Post> list) : base(list) { }
+    }
+
+    [DataObject]
+    public static class PostDA
+    {
+        static Database petapoco = ConnectionPP.getConnection();
+        public static Cache cache = HttpContext.Current.Cache;
+
+        public static PostCollection SelectAll()
+        {
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            petapoco.EnableAutoSelect = false;
+            petapoco.EnableNamedParams = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            PostCollection acc = new PostCollection(petapoco.Fetch<Post>(@"Select * from Post"));
+
+            //petapoco.Connection.Close();
+            return acc;
+        }
+
+        public static PostCollection SelectAllActiveNotSpam()
+        {
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            petapoco.EnableAutoSelect = false;
+            petapoco.EnableNamedParams = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            PostCollection acc = new PostCollection(petapoco.Fetch<Post>(@"Select * from Post where Activate=1 and Spam=0"));
+
+            //petapoco.Connection.Close();
+            return acc;
+        }
+
+        public static PostCollection SelectAllSpam()
+        {
+            //var petapoco = ConnectionPP.getConnection();
+            ////petapoco.Connection.Open();
+            petapoco.EnableAutoSelect = false;
+            petapoco.EnableNamedParams = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            PostCollection acc = new PostCollection(petapoco.Fetch<Post>(@"Select * from Post where Spam=1"));
+
+            //petapoco.Connection.Close();
+            return acc;
+        }
+
+        public static Post SelectByID(long id)
+        {
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            petapoco.EnableNamedParams = false;
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            Post ac = petapoco.FirstOrDefault<Post>(@"Select * from Post where id=@0", id);
+            //petapoco.Connection.Close();
+            return ac;
+        }
+
+        public static Post SelectByUrl(string url)
+        {
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            Post ac = petapoco.FirstOrDefault<Post>(@"Select * from Post where [Url]=@0", url);
+            //petapoco.Connection.Close();
+            return ac;
+        }
+
+        public static Post SelectByUrlID(long urlid)
+        {
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            Post ac = petapoco.FirstOrDefault<Post>(@"Select * from Post where [UrlID]=@0", urlid);
+            //petapoco.Connection.Close();
+            return ac;
+        }
+
+        public static PostCollection SelectByUsername(string username)
+        {
+            username = username.Trim().ToLower();
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            petapoco.EnableNamedParams = false;
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            PostCollection ac = new PostCollection(petapoco.Fetch<Post>(@"Select * from Post where Username=@0", username));
+            //petapoco.Connection.Close();
+            return ac;
+        }
+
+        public static PostCollection SelectByUsername(long accountID)
+        {
+            //username = username.Trim().ToLower();
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            //petapoco.EnableNamedParams = false;
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            PostCollection ac = new PostCollection(petapoco.Fetch<Post>(@"Select * from Post where AccountID=@0", accountID));
+            //petapoco.Connection.Close();
+            return ac;
+        }
+
+        public static PostCollection SelectByObjectID(string type)
+        {
+            type = type.Trim().ToLower();
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            //petapoco.EnableNamedParams = false;
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            PostCollection ac = new PostCollection(petapoco.Fetch<Post>(@"Select * from Post where ObjectID = @0", type));
+            //petapoco.Connection.Close();
+            return ac;
+        }
+
+        public static PostCollection SelectByCateID(int CateID)
+        {
+           
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            //petapoco.EnableNamedParams = false;
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            PostCollection ac = new PostCollection(petapoco.Fetch<Post>(@"Select * from Post where [CateID] = @0 and [Active]=1 order by ID desc", CateID));
+            //petapoco.Connection.Close();
+            return ac;
+        }
+
+        public static PostCollection SelectByCateID(int CateID,int page, int pagesize)
+        {
+            if (page == 0)
+                page = 1;
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            //petapoco.EnableNamedParams = false;
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            PostCollection ac = new PostCollection(petapoco.Fetch<Post>(page, pagesize, @"Select * from Post where [CateID] = @0 order by [CreatedDate] desc", CateID));
+            //petapoco.Connection.Close();
+            return ac;
+        }
+
+        public static PostCollection SelectByCateNameSlug(string cateNameSlug)
+        {
+
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            //petapoco.EnableNamedParams = false;
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            PostCollection ac = new PostCollection(petapoco.Fetch<Post>(@"Select * from Post where [CateNameSlug] = @0 order by [CreatedDate] desc", cateNameSlug));
+            //petapoco.Connection.Close();
+            return ac;
+        }
+
+        public static PostCollection SelectPostRelation(int cateID, int objID,long oldPostID)
+        {
+
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            //petapoco.EnableNamedParams = false;
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            PostCollection ac = new PostCollection(petapoco.Fetch<Post>(@"Select * from Post where [CateID] = @0 and [ObjectID]=@1 and [ID]!=@2 order by [CreatedDate] desc", cateID, objID, oldPostID));
+            //petapoco.Connection.Close();
+            return ac;
+        }
+
+        public static PostCollection SelectPostRelation(int cateID, int objID, long oldPostID, int num)
+        {
+
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            //petapoco.EnableNamedParams = false;
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            PostCollection ac = new PostCollection(petapoco.Fetch<Post>(@"Select top (@3) * from Post where [CateID] = @0 and [ObjectID]=@1 and [ID]!=@2 order by [CreatedDate] desc", cateID, objID, oldPostID, num));
+            //petapoco.Connection.Close();
+            return ac;
+        }
+
+        public static PostCollection SelectByCateNameSlug(string cateNameSlug, int page, int pagesize)
+        {
+            if (page == 0)
+                page = 1;
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            //petapoco.EnableNamedParams = false;
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            PostCollection ac = new PostCollection(petapoco.Fetch<Post>(page, pagesize, @"Select * from Post where [CateNameSlug] = @0 order by [CreatedDate] desc", cateNameSlug));
+            //petapoco.Connection.Close();
+            return ac;
+        }
+
+        public static PostCollection SelectByCateNameSlugRandom(string cateNameSlug, int page, int pagesize)
+        {
+            if (page == 0)
+                page = 1;
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            //petapoco.EnableNamedParams = false;
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            PostCollection ac = new PostCollection(petapoco.Fetch<Post>(page, pagesize, @"Select * from Post where [CateNameSlug] = @0 order by [CreatedDate] desc", cateNameSlug));
+            //petapoco.Connection.Close();
+            return ac;
+        }
+
+        public static PostCollection SelectByDate(DateTime date)
+        {
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            PostCollection acc = new PostCollection(petapoco.Fetch<Post>(@"Select * from Post where CreatedDate like @0", date));
+            //petapoco.Connection.Close();
+            return acc;
+        }
+
+         public static Post SelectPostNewest()
+        {
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            Post acc = (petapoco.FirstOrDefault<Post>(@"Select * from Post order by CreatedDate desc"));
+            //petapoco.Connection.Close();
+            return acc;
+        }
+
+         public static PostCollection SelectListPostNewest(int num)
+         {
+             //var petapoco = ConnectionPP.getConnection();
+             //petapoco.Connection.Open();
+             petapoco.EnableAutoSelect = false;
+             petapoco.ForceDateTimesToUtc = false;
+
+             PostCollection acc = new PostCollection(petapoco.Fetch<Post>(@"Select * from Post where [Active]=1  order by CreatedDate desc, ID desc").Take(num));
+             //petapoco.Connection.Close();
+             return acc;
+         }
+
+         public static PostCollection SelectListPostNewest()
+         {
+             //var petapoco = ConnectionPP.getConnection();
+             //petapoco.Connection.Open();
+             petapoco.EnableAutoSelect = false;
+             petapoco.ForceDateTimesToUtc = false;
+
+             PostCollection acc = new PostCollection(petapoco.Fetch<Post>(@"Select * from Post order by CreatedDate desc"));
+             //petapoco.Connection.Close();
+             return acc;
+         }
+
+        public static Post SelectPostNewest(long CateID)
+        {
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            Post acc = (petapoco.FirstOrDefault<Post>(@"Select * from Post where [CateID]=@0 order by CreatedDate desc", CateID));
+            //petapoco.Connection.Close();
+            return acc;
+        }
+
+        public static PostCollection SelectPostNewest(long CateID, long pagesize, long page)
+        {
+            if(page==0)
+                page=1;
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            PostCollection acc = new PostCollection(petapoco.Fetch<Post>(page,pagesize,"Select * from Post where [CateID]=@0 order by CreatedDate desc",CateID));
+            
+            //petapoco.Connection.Close();
+            return acc;
+        }
+
+        public static Post SelectHotPostVoting(int CateID)
+        {
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            Post acc = (petapoco.FirstOrDefault<Post>(@"Select * from Post where [CateID]=@0 order by [Vote] desc", CateID));
+            //petapoco.Connection.Close();
+            return acc;
+        }
+
+        public static Post SelectHotPostVotingObjectID(int objID)
+        {
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            Post acc = (petapoco.FirstOrDefault<Post>(@"Select * from Post where [ObjectID]=@0 order by [Vote] desc", objID));
+            //petapoco.Connection.Close();
+            return acc;
+        }
+
+        public static Post SelectHotPostVotingObjectNameSlug(string objectname)
+        {
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            Post acc = (petapoco.FirstOrDefault<Post>(@"Select * from Post where [ObjectNameSlug]=@0 order by [Vote] desc", objectname));
+            //petapoco.Connection.Close();
+            return acc;
+        }
+
+        public static Post SelectHotPostView(long CateID)
+        {
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            Post acc = (petapoco.FirstOrDefault<Post>(@"Select * from Post where [CateID]=@0 order by [View] desc", CateID));
+            //petapoco.Connection.Close();
+            return acc;
+        }
+
+        public static Post SelectHotPostViewObjectID(int objID)
+        {
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            Post acc = (petapoco.FirstOrDefault<Post>(@"Select * from Post where [ObjectID]=@0 order by [View] desc", objID));
+            //petapoco.Connection.Close();
+            return acc;
+        }
+
+        public static Post SelectHotPostViewObjectNameSlug(string objectname)
+        {
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            Post acc = (petapoco.FirstOrDefault<Post>(@"Select * from Post where [ObjectNameSlug]=@0 order by [View] desc", objectname));
+            //petapoco.Connection.Close();
+            return acc;
+        }
+
+        public static PostCollection SelectByPageSize(int page, int pagesize)
+        {
+            if (page == 0)
+                page = 1;
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            PostCollection acc = new PostCollection(petapoco.Fetch<Post>(@"Select * from Post where [Activate]=1").Skip((page - 1) * pagesize).Take(page * pagesize));
+            //petapoco.Connection.Close();
+            return acc;
+        }
+
+        public static PostCollection TopPostHotView(int num)
+        {
+            
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            PostCollection acc = new PostCollection(petapoco.Fetch<Post>(@"Select top @0 * from Post where [Activate]=1 order by [View] desc",num));
+            //petapoco.Connection.Close();
+            return acc;
+        }
+
+        public static PostCollection TopPostHotView(int num, int CateID)
+        {
+            
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            PostCollection acc = new PostCollection(petapoco.Fetch<Post>(@"Select top @0 * from Post where [Activate]=1 and [CateID]=@1 order by [View] desc",num, CateID));
+            //petapoco.Connection.Close();
+            return acc;
+        }
+
+        public static PostCollection TopPostHotVote(int num)
+        {
+
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            PostCollection acc = new PostCollection(petapoco.Fetch<Post>(@"Select top @0 * from Post where [Activate]=1 order by [Vote] desc", num));
+            //petapoco.Connection.Close();
+            return acc;
+        }
+
+        public static PostCollection TopPostHotVote(int num, int CateID)
+        {
+
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            PostCollection acc = new PostCollection(petapoco.Fetch<Post>(@"Select top @0 * from Post where [Activate]=1 and [CateID]=@1 order by [Vote] desc", num,CateID));
+            //petapoco.Connection.Close();
+            return acc;
+        }
+
+        public static long Update(Post Post)
+        {
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            //petapoco.Connection.Open();
+
+            petapoco.EnableAutoSelect = false;
+            petapoco.EnableNamedParams = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            //Post ac = PostDA.SelectByID(Post.ID);
+            //ac = 
+            Post.ModifiedDate = DateTime.Now;
+            long x = petapoco.Update("Post", "ID", Post, Post.ID);
+            //petapoco.Connection.Close();
+            return x;
+        }
+
+        public static long Insert(Post Post)
+        {
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            petapoco.EnableAutoSelect = false;
+            //petapoco.EnableNamedParams = false;
+            petapoco.ForceDateTimesToUtc = false;
+            Post.CreatedDate = DateTime.Now;
+            Post.ModifiedDate = DateTime.Now;
+            //Post ac = PostDA.SelectByID(Post.ID);
+            //ac = 
+
+            var x = petapoco.Insert("Post", "ID", true, Post);
+            //petapoco.Connection.Close();
+            return long.Parse(x.ToString());
+        }
+
+        public static long Delete(Post Post)
+        {
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            petapoco.EnableAutoSelect = false;
+            petapoco.EnableNamedParams = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            //Post ac = PostDA.SelectByID(Post.ID);
+            //Post.ModifiedDate = DateTime.Now;
+            Post.Active = false;
+            long x = Update(Post);
+            //petapoco.Connection.Close();
+            return x;
+        }
+
+        public static long DeletePermament(Post Post)
+        {
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            petapoco.EnableAutoSelect = false;
+            petapoco.EnableNamedParams = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            //Post ac = PostDA.SelectByID(Post.ID);
+            //Post.ModifiedDate = DateTime.Now;
+            
+            long x = petapoco.Delete("Post", "ID", Post, Post.ID);
+            //petapoco.Connection.Close();
+            return x;
+        }
+
+        public static int countAll()
+        {
+            return petapoco.ExecuteScalar<int>(@"Select count(*) from Post");
+        }
+
+        public static int countAll(int cateID)
+        {
+            return petapoco.ExecuteScalar<int>(@"Select count(*) from Post where [CateID]=@0",cateID);
+        }
+
+        public static int countAll(string cateNameSlug)
+        {
+            return petapoco.ExecuteScalar<int>(@"Select count(*) from Post where [CateNameSlug]=@0", cateNameSlug);
+        }
+    }
+}

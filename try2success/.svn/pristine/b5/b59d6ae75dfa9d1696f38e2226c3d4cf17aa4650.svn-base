@@ -1,0 +1,454 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+using System.ComponentModel;
+using System.Web.Caching;
+using System.Web;
+
+namespace hoachdinhtuonglai
+{
+    public class Comment
+    {
+        private long _ID;
+
+        public long ID
+        {
+            get { return _ID; }
+            set { _ID = value; }
+        }
+
+        private string _Content;
+
+        public string Content
+        {
+            get { return _Content; }
+            set { _Content = value; }
+        }
+
+        private System.Nullable<long> _ObjID;
+
+        public System.Nullable<long> ObjID
+        {
+            get { return _ObjID; }
+            set { _ObjID = value; }
+        }
+
+        private System.Nullable<System.DateTime> _Date;
+
+        public System.Nullable<System.DateTime> Date
+        {
+            get { return _Date; }
+            set { _Date = value; }
+        }
+
+        private bool _Spam;
+
+        public bool Spam
+        {
+            get { return _Spam; }
+            set { _Spam = value; }
+        }
+
+        private string _Username;
+
+        public string Username
+        {
+            get { return _Username; }
+            set { _Username = value; }
+        }
+
+        private long _AccountID;
+
+        public long AccountID
+        {
+            get { return _AccountID; }
+            set { _AccountID = value; }
+        }
+
+        private bool _Activate;
+
+        public bool Activate
+        {
+            get { return _Activate; }
+            set { _Activate = value; }
+        }
+
+        private long _ParentID;
+
+        public long ParentID
+        {
+            get { return _ParentID; }
+            set { _ParentID = value; }
+        }
+
+        private string _ObjectType;
+
+        public string ObjectType
+        {
+            get { return _ObjectType; }
+            set { _ObjectType = value; }
+        }
+
+        private string _Targer_link;
+
+        public string Targer_link
+        {
+            get { return _Targer_link; }
+            set { _Targer_link = value; }
+        }
+
+        private string _Target_object_name;
+
+        public string Target_object_name
+        {
+            get { return _Target_object_name; }
+            set { _Target_object_name = value; }
+        }
+
+        private long _RecieverID;
+
+        public long RecieverID
+        {
+            get { return _RecieverID; }
+            set { _RecieverID = value; }
+        }
+
+        private string _ReceiverUsername;
+
+        public string ReceiverUsername
+        {
+            get { return _ReceiverUsername; }
+            set { _ReceiverUsername = value; }
+        }
+
+        private string _Author_IP;
+
+        public string Author_IP
+        {
+            get { return _Author_IP; }
+            set { _Author_IP = value; }
+        }
+
+        private string _Agent;
+
+        public string Agent
+        {
+            get { return _Agent; }
+            set { _Agent = value; }
+        }
+
+        private string _Status = "public";
+
+        public string Status
+        {
+            get { return _Status; }
+            set { _Status = value; }
+        }
+
+        public int comment_level = 0;
+    }
+
+    public class CommentCollection : List<Comment>
+    {
+        public CommentCollection() { }
+        public CommentCollection(IEnumerable<Comment> list) : base(list) { }
+    }
+
+    [DataObject]
+    public static class CommentDA
+    {
+        static Database petapoco = ConnectionPP.getConnection();
+        public static Cache cache = HttpContext.Current.Cache;
+
+        public static CommentCollection SelectAll()
+        {
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            petapoco.EnableAutoSelect = false;
+            petapoco.EnableNamedParams = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            CommentCollection acc = new CommentCollection(petapoco.Fetch<Comment>(@"Select * from Comment"));
+
+            //petapoco.Connection.Close();
+            return acc;
+        }
+
+        public static CommentCollection SelectAllActivateNotSpam()
+        {
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            petapoco.EnableAutoSelect = false;
+            petapoco.EnableNamedParams = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            CommentCollection acc = new CommentCollection(petapoco.Fetch<Comment>(@"Select * from Comment where [Activate]=1 and [Spam]=0"));
+
+            //petapoco.Connection.Close();
+            return acc;
+        }
+
+        public static CommentCollection getAllComment(CommentCollection listComment)
+        {
+            CommentCollection comments = new CommentCollection();
+            CommentCollection temp = new CommentCollection();
+            //comments
+            int i = 0;
+            foreach (Comment c in listComment)
+            {
+
+
+                temp = (CommentDA.SelectByParentID(c.ID));
+                if (temp != null)
+                {
+                    if (c.ParentID == 0)
+                        comments.Add(c);
+                    foreach (Comment co in temp)
+                    {
+                        co.comment_level += 1;
+                        //if(co.ID =
+                    }
+
+                    comments.AddRange(temp);
+
+                }
+                else
+                    comments.Add(c);
+            }
+
+            return comments;
+        }
+
+        public static CommentCollection SelectAllSpam()
+        {
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            petapoco.EnableAutoSelect = false;
+            petapoco.EnableNamedParams = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            CommentCollection acc = new CommentCollection(petapoco.Fetch<Comment>(@"Select * from Comment where [Spam]=1"));
+
+            //petapoco.Connection.Close();
+            return acc;
+        }
+
+        public static Comment SelectByID(long id)
+        {
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            petapoco.EnableNamedParams = false;
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            Comment ac = petapoco.FirstOrDefault<Comment>(@"Select * from Comment where [ID]=@0", id);
+            //petapoco.Connection.Close();
+            return ac;
+        }
+
+        public static CommentCollection SelectByUsername(string username)
+        {
+            username = username.Trim().ToLower();
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            petapoco.EnableNamedParams = false;
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            CommentCollection ac = new CommentCollection( petapoco.Fetch<Comment>(@"Select * from Comment where [Username]=@0", username));
+            //petapoco.Connection.Close();
+            return ac;
+        }
+
+        public static CommentCollection SelectByUsername(long accountID)
+        {
+            //username = username.Trim().ToLower();
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            petapoco.EnableNamedParams = false;
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            CommentCollection ac = new CommentCollection(petapoco.Fetch<Comment>(@"Select * from Comment where [AccountID]=@0", accountID));
+            //petapoco.Connection.Close();
+            return ac;
+        }
+
+        public static CommentCollection SelectByObjectType(string type)
+        {
+            type = type.Trim().ToLower();
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            //petapoco.EnableNamedParams = false;
+            //petapoco.EnableAutoSelect = false;
+            //petapoco.ForceDateTimesToUtc = false;
+
+            CommentCollection ac = new CommentCollection( petapoco.Fetch<Comment>(@"Select * from Comment where [ObjectType] = @0", type));
+            //petapoco.Connection.Close();
+            return ac;
+        }
+
+        public static CommentCollection SelectByObjectTypeObjID(string type, long objID)
+        {
+            type = type.Trim().ToLower();
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            //petapoco.EnableNamedParams = false;
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            CommentCollection ac = new CommentCollection(petapoco.Fetch<Comment>(@"Select * from Comment where [ObjectType] = @0 and [ObjID]=@1", type,objID));
+            //petapoco.Connection.Close();
+            return ac;
+        }
+
+        public static CommentCollection SelectByObjectTypeObjID(string type, long objID,int page, int pagesize)
+        {
+            if (page == 0)
+                page = 1;
+            type = type.Trim().ToLower();
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            //petapoco.EnableNamedParams = false;
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            CommentCollection ac = new CommentCollection(petapoco.Fetch<Comment>(page,pagesize,@"Select * from Comment where [ObjectType] = @0 and [ObjID]=@1", type, objID));
+            //petapoco.Connection.Close();
+            return ac;
+        }
+
+
+        public static CommentCollection SelectByObjectID(long objid)
+        {
+            //type = type.Trim().ToLower();
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            //petapoco.EnableNamedParams = false;
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            CommentCollection ac = new CommentCollection(petapoco.Fetch<Comment>(@"Select * from Comment where [ObjID] = @0", objid));
+            //petapoco.Connection.Close();
+            return ac;
+        }
+
+        public static CommentCollection SelectByParentID(long parentID)
+        {
+            //type = type.Trim().ToLower();
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            //petapoco.EnableNamedParams = false;
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            CommentCollection ac = new CommentCollection(petapoco.Fetch<Comment>(@"Select * from Comment where [ParentID] = @0", parentID));
+            //petapoco.Connection.Close();
+            return ac;
+        }
+
+        public static CommentCollection SelectByObjectID(long objid, int page,int pagesize)
+        {
+            
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            CommentCollection ac = new CommentCollection(petapoco.Fetch<Comment>(page,pagesize,@"Select * from Comment where [ObjID] = @0", objid));
+           
+            return ac;
+        }
+
+        public static CommentCollection SelectByDate(DateTime date)
+        {
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            CommentCollection acc = new CommentCollection(petapoco.Fetch<Comment>(@"Select * from Comment where [Date] like @0", date));
+            //petapoco.Connection.Close();
+            return acc;
+        }
+
+        public static CommentCollection SelectByPageSize(int page, int pagesize)
+        {
+            if (page == 0)
+                page = 1;
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            petapoco.EnableAutoSelect = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            CommentCollection acc = new CommentCollection(petapoco.Fetch<Comment>(@"Select * from Comment where [Activate=1").Skip((page-1)*pagesize).Take(page*pagesize));
+            //petapoco.Connection.Close();
+            return acc;
+        }
+
+        public static long Update(Comment Comment)
+        {
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            //petapoco.Connection.Open();
+
+            petapoco.EnableAutoSelect = false;
+            petapoco.EnableNamedParams = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            //Comment ac = CommentDA.SelectByID(Comment.ID);
+            //ac = 
+
+            long x = petapoco.Update("Comment", "ID", Comment, Comment.ID);
+            //petapoco.Connection.Close();
+            return x;
+        }
+
+        public static long Insert(Comment Comment)
+        {
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            petapoco.EnableAutoSelect = false;
+            //petapoco.EnableNamedParams = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            //Comment ac = CommentDA.SelectByID(Comment.ID);
+            //ac = 
+
+            var x = petapoco.Insert("Comment", "ID", true, Comment);
+            //petapoco.Connection.Close();
+            return long.Parse(x.ToString());
+        }
+
+        public static long Delete(Comment Comment)
+        {
+            //var petapoco = ConnectionPP.getConnection();
+            //petapoco.Connection.Open();
+            petapoco.EnableAutoSelect = false;
+            petapoco.EnableNamedParams = false;
+            petapoco.ForceDateTimesToUtc = false;
+
+            //Comment ac = CommentDA.SelectByID(Comment.ID);
+
+            long x = petapoco.Delete("Comment", "ID", Comment, Comment.ID);
+            //petapoco.Connection.Close();
+            return x;
+        }
+
+        public static int countAll()
+        {
+            petapoco.EnableAutoSelect = false;
+            petapoco.EnableNamedParams = false;
+            petapoco.ForceDateTimesToUtc = false;
+            return petapoco.ExecuteScalar<int>(@"Select count(*) from Comment");
+        }
+
+        public static int countAll(long objID, string objecttype)
+        {
+            petapoco.EnableAutoSelect = false;
+            //petapoco.EnableNamedParams = false;
+            petapoco.ForceDateTimesToUtc = false;
+            return petapoco.ExecuteScalar<int>(@"Select count(*) from Comment where [ObjID]=@0 and [ObjectType]=@1",objID,objecttype);
+        }
+    }
+}

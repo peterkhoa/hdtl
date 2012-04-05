@@ -1,0 +1,46 @@
+﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="sharing.ascx.cs" Inherits="hoachdinhtuonglai.control.Commons.sharing" %>
+<%@ Import Namespace="hoachdinhtuonglai" %>
+<div class="categorybox">
+    <div><a href="/?page=compose">Viết chia sẻ</a></div>
+    <hr />
+    <br />
+    <div>
+        <div>Co gi xem nay</div>
+        <div>
+            <%
+                Account ac = new Account();
+                string link, title;
+                if (listPost.Count > 0)
+                {
+                    foreach (Post p in listPost)
+                    {
+                        link = LinkBuilder.getLinkProfile(p.Username);
+                        title = p.Title;
+                        if (title.Length > 100)
+                        {
+                            title = title.Substring(0, title.LastIndexOf(" ", 80));
+                            title += " ...";
+                        }
+                    
+                %>
+                <div>
+                    <div class="listleft">
+                        <div class="avartar">
+                            <div><a href="<%=link %>" ><img src="<%=p.getLinkAvatar() %>" alt="" /></a></div>
+                            <div><a href="<%=link %>" ><%=p.Username%></a></div>
+                        </div>
+                    </div>
+                    <div class="listright">
+                        <div><a href="<%=LinkBuilder.getLinkPost(p.ID, p.Title) %>" title=""><%=title%></a></div>
+                        <div><span>Xem (<%=p.View%>)</span> <span>Thích (<%=p.Vote%>)</span></div>
+                        <div><%=p.Content%></div>
+                    </div>
+                </div>
+                
+                <%
+                    }
+                }
+                 %>
+        </div>
+    </div>
+</div>

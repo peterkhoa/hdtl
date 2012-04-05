@@ -1,0 +1,401 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Caching;
+
+namespace hoachdinhtuonglai
+{
+    //public class QueueEMail
+    //{
+    //    long _ID;
+
+    //    public long ID
+    //    {
+    //        get { return _ID; }
+    //        set { _ID = value; }
+    //    }
+    //    string _FromAddress;
+
+    //    public string FromAddress
+    //    {
+    //        get { return _FromAddress; }
+    //        set { _FromAddress = value; }
+    //    }
+    //    string _ToAddress;
+
+    //    public string ToAddress
+    //    {
+    //        get { return _ToAddress; }
+    //        set { _ToAddress = value; }
+    //    }
+    //    string _Subject;
+
+    //    public string Subject
+    //    {
+    //        get { return _Subject; }
+    //        set { _Subject = value; }
+    //    }
+    //    string _Body;
+
+    //    public string Body
+    //    {
+    //        get { return _Body; }
+    //        set { _Body = value; }
+    //    }
+    //    DateTime _SentDate = DateTime.Now;
+
+    //    public DateTime SentDate
+    //    {
+    //        get { return _SentDate; }
+    //        set { _SentDate = value; }
+    //    }
+    //    bool _IsSent = false;
+
+    //    public bool IsSent
+    //    {
+    //        get { return _IsSent; }
+    //        set { _IsSent = value; }
+    //    }
+
+    //    int _SentTimes = 0;
+
+    //    public int SentTimes
+    //    {
+    //        get { return _SentTimes; }
+    //        set { _SentTimes = value; }
+    //    }
+
+    //    bool _IsSelected = false;
+
+    //    public bool IsSelected
+    //    {
+    //        get { return _IsSelected; }
+    //        set { _IsSelected = value; }
+    //    }
+    //    string _SenderName;
+
+    //    public string SenderName
+    //    {
+    //        get { return _SenderName; }
+    //        set { _SenderName = value; }
+    //    }
+    //    string _ReceiverName;
+
+    //    public string ReceiverName
+    //    {
+    //        get { return _ReceiverName; }
+    //        set { _ReceiverName = value; }
+    //    }
+    //}
+
+    public class QueueEMailCollection : List<QueueEMail>
+    {
+        public QueueEMailCollection() { }
+        public QueueEMailCollection(IEnumerable<QueueEMail> list) : base(list) { }
+    }
+
+    public static class QueueEMailDA
+    {
+        static Database petapoco = ConnectionPP.getConnection();
+        static Cache cache = HttpContext.Current.Cache;
+        public static void delele_oldmail()
+        {
+            //using (f8roomDataContext context = new f8roomDataContext())
+            {
+                petapoco.EnableAutoSelect = false;
+                petapoco.EnableNamedParams = false;
+                petapoco.ForceDateTimesToUtc = false;
+                /*
+                var emailmoinhat = from item in context.QueueEMails
+                                   orderby item.ID descending
+                                   select item;*/
+
+
+                QueueEMail emailmoi = petapoco.FirstOrDefault<QueueEMail>("Select * from QueueEMail order by ID desc");
+
+                //chi luu lai 10.000 moi nhat thoi
+
+                long id_caonhatphaixoa = emailmoi.ID - 10000;
+
+
+
+                //var emailCunhatCanxoa = from item in context.QueueEMails
+                //                        //  where item.IsSent == true // chi tinh nhung email da gui thanh cong
+                //                        orderby item.ID ascending// lay tu thap len cao
+                //                        select item;
+
+
+
+                QueueEMail emailcu = petapoco.FirstOrDefault<QueueEMail>("Select * from QueueEMail order by ID");
+
+                //moi lan xoa 1000 email thoi
+                long id_tieptheocanxoa = emailcu.ID + 1000;
+
+//                string command = @"DELETE FROM QueueEMail
+//											 WHERE [isSent]=1 and [ID] < {0} and [ID] < {1}";
+
+                petapoco.Execute(@"DELETE FROM QueueEMail WHERE [isSent]=1 and [ID] < {0} and [ID] < {1}", id_caonhatphaixoa, id_tieptheocanxoa);
+
+                //context.ExecuteCommand(command, id_caonhatphaixoa, id_tieptheocanxoa);
+
+
+
+            }
+
+
+        }
+        public static QueueEMailCollection SelectAll()
+        {
+            //using (f8roomDataContext context = new f8roomDataContext())
+            {
+                petapoco.EnableAutoSelect = false;
+                petapoco.EnableNamedParams = false;
+                petapoco.ForceDateTimesToUtc = false;
+
+                //var query = from item in context.QueueEMails
+                //            orderby item.ID descending
+                //            select item;
+                return new QueueEMailCollection(petapoco.Fetch<QueueEMail>("Select * from QueueEMail order by [ID] desc"));
+            }
+
+
+        }
+
+        public static void SelectToSend(int numberOfEmail, out QueueEMailCollection qc)
+        {
+
+            //using (f8roomDataContext context = new f8roomDataContext())
+            {
+                petapoco.EnableAutoSelect = false;
+                petapoco.EnableNamedParams = false;
+                petapoco.ForceDateTimesToUtc = false;
+
+                //var query = (from item in context.QueueEMails
+                //             where
+                //             item.IsSent == false
+                //             && item.IsSelected == false
+                //             && item.SentDate <= DateTime.Now
+                //             && item.SentTimes < 1
+                //             orderby item.ID descending //lay tu moi nhat toi cu nhat
+                //             select item).Take(numberOfEmail);
+
+                QueueEMailCollection query = new QueueEMailCollection(petapoco.Fetch<QueueEMail>("select * from QueueEMail where [IsSelected]=0 and [IsSent]=0 and [SentDate] <= getDate() and [SentTimes] < 1 order by [ID] desc").Take(numberOfEmail));
+
+                //    if (query.Count() > 0)
+                {
+
+                    //return value
+                    qc = new QueueEMailCollection();
+                    try
+                    {
+                        qc = new QueueEMailCollection(query);
+                    }
+                    catch (Exception ex) { }
+
+                    //Update value
+                    foreach (QueueEMail email in query)
+                    {
+                        email.IsSelected = true;
+                        email.SentTimes = (Int16)(email.SentTimes + 1);
+                        Update(email);
+                        //Later if sent successfully, IsSent = true, IsSelected = false, SentDate = Now
+                    }
+                    //Update object
+
+                   
+                    //context.SubmitChanges();
+
+                    //Then return for sending
+                    //Ack ack, can not do this, after submit changes, query.Count()--> ZERO @@
+                    //return new QueueEMailCollection(query);
+                }
+                //else
+                //{
+                //    qc = new QueueEMailCollection();
+                //}
+
+            }
+        }
+
+        public static void UpdateAfterSent(QueueEMailCollection emailList)
+        {
+            //using (f8roomDataContext context = new f8roomDataContext())
+            {
+                petapoco.EnableAutoSelect = false;
+                petapoco.EnableNamedParams = false;
+                petapoco.ForceDateTimesToUtc = false;
+                foreach (QueueEMail email in emailList)
+                {
+                    //var query = (from item in context.QueueEMails
+                    //             where item.ID == email.ID
+                    //             select item).FirstOrDefault();
+                    QueueEMail query = petapoco.FirstOrDefault<QueueEMail>("select * from QueueEMail where [ID]={0}",email.ID);
+                    if (query != null)
+                    {
+                        //Later if sent successfully, IsSent = true, SentDate = Now
+                        if (email.IsSent == true)
+                        {
+                            query.SentDate = DateTime.Now;
+                            query.IsSent = true;
+                        }
+                        else // IsSent = false;
+                        {
+                            query.IsSent = false;
+                        }
+                        //Update selected status for next selection
+                        query.IsSelected = false;
+
+                        //Submit changes to database
+                        //context.SubmitChanges();
+                        Update(query);
+                    }
+
+                }
+
+            }
+        }
+
+
+        public static QueueEMail SelectByID(long id)
+        {
+            //try
+            {
+               // using (f8roomDataContext context = new f8roomDataContext())
+                {
+                    petapoco.EnableAutoSelect = false;
+                    petapoco.EnableNamedParams = false;
+                    petapoco.ForceDateTimesToUtc = false;
+
+                    //context.DeferredLoadingEnabled = false;
+                    //var query = from item in context.QueueEMails
+                    //            where item.ID == id
+                    //            select item;
+                    return petapoco.FirstOrDefault<QueueEMail>("Select * from QueueEMail where [ID]={0}",id);
+
+
+                }
+            }
+            // catch (Exception ex)
+            {
+                //ErrorLogDA.Insert(ex); throw new Exception( "Database Error");
+                //return null;
+            }
+        }
+
+        public static long Insert(QueueEMail QueueEMail)
+        {
+            //try
+            {
+                //using (f8roomDataContext context = new f8roomDataContext())
+                {
+                    petapoco.EnableAutoSelect = false;
+                    petapoco.EnableNamedParams = false;
+                    petapoco.ForceDateTimesToUtc = false;
+
+                    //context.QueueEMails.InsertOnSubmit(QueueEMail);
+                    //context.SubmitChanges();
+
+                    petapoco.Insert("QueueEMail", "ID", true, QueueEMail);
+
+                    return QueueEMail.ID;
+                }
+            }
+            // catch (Exception ex)
+            {
+                //ErrorLogDA.Insert(ex); throw new Exception( "Database Error");
+                //return -1;
+            }
+        }
+        public static long Update(QueueEMail QueueEMail)
+        {
+            //try
+            {
+                //using (f8roomDataContext context = new f8roomDataContext())
+                {
+                    petapoco.EnableAutoSelect = false;
+                    petapoco.EnableNamedParams = false;
+                    petapoco.ForceDateTimesToUtc = false;
+
+                    //QueueEMail original = SelectByID(QueueEMail.ID);
+
+                    //context.QueueEMails.Attach(QueueEMail, original);
+                    //context.SubmitChanges();
+
+                    petapoco.Update(QueueEMail,QueueEMail.ID);
+
+                    return QueueEMail.ID;
+                }
+            }
+            // catch (Exception ex)
+            {
+                //ErrorLogDA.Insert(ex); 
+                //throw ex;
+
+            }
+        }
+        public static long Delete(QueueEMail QueueEMail)
+        {
+            //try
+            {
+                //using (f8roomDataContext context = new f8roomDataContext())
+                {
+                    petapoco.EnableAutoSelect = false;
+                    petapoco.EnableNamedParams = false;
+                    petapoco.ForceDateTimesToUtc = false;
+
+                    //context.QueueEMails.Attach(QueueEMail, SelectByID(QueueEMail.ID));
+                    //context.QueueEMails.DeleteOnSubmit(QueueEMail);
+                    //context.SubmitChanges();
+                    petapoco.Delete("QueueEMail", "ID", QueueEMail, QueueEMail.ID);
+
+                    return QueueEMail.ID;
+                }
+            }
+            // catch (Exception ex)
+            {
+                //ErrorLogDA.Insert(ex); 
+                throw new Exception("Database Error");
+
+            }
+        }
+        public static int CountAll()
+        {
+            //try
+            {
+                //using (f8roomDataContext context = new f8roomDataContext())
+                {
+                    petapoco.EnableAutoSelect = false;
+                    petapoco.EnableNamedParams = false;
+                    petapoco.ForceDateTimesToUtc = false;
+                    return petapoco.ExecuteScalar<int>("select count(*) from QueueEMail");
+                }
+            }
+            // catch (Exception ex)
+            {
+                //ErrorLogDA.Insert(ex);
+                throw new Exception("Database Error");
+
+            }
+        }
+
+
+
+
+
+
+        public static void UpdateAfterSucess(QueueEMail email)
+        {
+            email.SentDate = DateTime.Now;
+            email.IsSent = true;
+            Update(email);
+        }
+
+        public static void UpdateAfterNotSucess(QueueEMail email)
+        {
+            email.IsSelected = false;
+            Update(email);
+        }
+
+    }
+}

@@ -1,0 +1,15 @@
+C:\Users\petertran\Downloads\Compressed\HtmlEditor.VS2008\Winthusiasm.HtmlEditor\bin\Debug\Winthusiasm.HtmlEditor.dll
+C:\Users\petertran\Downloads\Compressed\HtmlEditor.VS2008\Winthusiasm.HtmlEditor\bin\Debug\Winthusiasm.HtmlEditor.pdb
+C:\Users\petertran\Downloads\Compressed\HtmlEditor.VS2008\Winthusiasm.HtmlEditor\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\petertran\Downloads\Compressed\HtmlEditor.VS2008\Winthusiasm.HtmlEditor\obj\Debug\Winthusiasm.HtmlEditor.dll
+C:\Users\petertran\Downloads\Compressed\HtmlEditor.VS2008\Winthusiasm.HtmlEditor\obj\Debug\Winthusiasm.HtmlEditor.pdb
+E:\Programming\Webs\t2s\Winthusiasm.HtmlEditor\bin\Debug\Winthusiasm.HtmlEditor.dll
+E:\Programming\Webs\t2s\Winthusiasm.HtmlEditor\bin\Debug\Winthusiasm.HtmlEditor.pdb
+E:\Programming\Webs\t2s\Winthusiasm.HtmlEditor\obj\Debug\ResolveAssemblyReference.cache
+E:\Programming\Webs\t2s\Winthusiasm.HtmlEditor\obj\Debug\Winthusiasm.HtmlEditor.dll
+E:\Programming\Webs\t2s\Winthusiasm.HtmlEditor\obj\Debug\Winthusiasm.HtmlEditor.pdb
+E:\Programming\Webs\try2success\Winthusiasm.HtmlEditor\bin\Debug\Winthusiasm.HtmlEditor.dll
+E:\Programming\Webs\try2success\Winthusiasm.HtmlEditor\bin\Debug\Winthusiasm.HtmlEditor.pdb
+E:\Programming\Webs\try2success\Winthusiasm.HtmlEditor\obj\Debug\ResolveAssemblyReference.cache
+E:\Programming\Webs\try2success\Winthusiasm.HtmlEditor\obj\Debug\Winthusiasm.HtmlEditor.dll
+E:\Programming\Webs\try2success\Winthusiasm.HtmlEditor\obj\Debug\Winthusiasm.HtmlEditor.pdb

@@ -1,0 +1,155 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<configuration>
+  <configSections>
+    <sectionGroup name="modulesSections">
+      <section name="rewriteModule" type="Library.RewriteModuleSectionHandler"/>
+    </sectionGroup>
+  </configSections>
+  <runtime>
+    <!--NetFx40_LegacySecurityPolicy enabled="false"/-->
+    <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
+      <dependentAssembly>
+        <assemblyIdentity name="System.Web.Mvc" publicKeyToken="31bf3856ad364e35" />
+        <bindingRedirect oldVersion="1.0.0.0-2.0.0.0" newVersion="3.0.0.0" />
+      </dependentAssembly>
+    </assemblyBinding>
+  </runtime>
+  <!--connectionStrings-->
+    <!--add name="ApplicationServices" connectionString="data source=.\SQLEXPRESS;Integrated Security=SSPI;AttachDBFilename=|DataDirectory|\aspnetdb.mdf;User Instance=true" providerName="System.Data.SqlClient"/-->
+    <!--add name="hoachdinhtuonglai" connectionString="Data Source=hoachdinhtuonglai.mssql.somee.com;Initial Catalog=hoachdinhtuonglai;Persist Security Info=True;User ID=hdtl;Password=123asdzxc" providerName="System.Data.SqlClient"/-->
+
+  <!--/connectionStrings-->
+  <modulesSections>
+    <rewriteModule>
+      <rewriteOn>true</rewriteOn>
+      <rewriteRules>
+        <rule source="/$" destination="/default.aspx?page=home"/>
+        <rule source="dang-ky/$" destination="/default.aspx?page=dang-ky"/>
+        <rule source="dang-nhap/(.*)$" destination="/default.aspx?page=dang-nhap&amp;url=$1"/>
+        <rule source="t2s/([a-zA-Z0-9-_–\.]+)$" destination="/default.aspx?page=profile&amp;u=$1"/>
+        <rule source="chia-se/$" destination="/default.aspx?page=chia-se"/>
+        <rule source="hoi-nhom/" destination="/default.aspx?page=hoi-nhom"/>
+        <rule source="viec-lam/$" destination="/default.aspx?page=viec-lam"/>
+        <rule source="tai-lieu/$" destination="/default.aspx?page=tai-lieu"/>
+        <!--rule source="bai-viet/$" destination="/default.aspx?page=bai-viet"/-->
+        <rule source="bai-viet/(.*)-([0-9]+).html" destination="/default.aspx?page=bai-viet&amp;id=$2"/>
+
+        <rule source="^chia-se/([a-zA-Z0-9-_–]+)-([a-zA-Z0-9-_]+).html" destination="/default.aspx?page=chia-se&amp;id=$2"/>
+        <rule source="([a-zA-Z0-9-_]+)/(.*)-([0-9]+).html" destination="/default.aspx?page=bai-viet&amp;id=$3"/>
+      </rewriteRules>
+    </rewriteModule>
+  </modulesSections>
+  <system.webServer>
+    <defaultDocument>
+      <files>
+        <add value="default.aspx"/>
+      </files>
+    </defaultDocument>
+    <validation validateIntegratedModeConfiguration="false"/>
+
+    <httpCompression directory="%SystemDrive%\inetpub\temp\IIS Temporary Compressed Files">
+      <scheme name="gzip" dll="%Windir%\system32\inetsrv\gzip.dll"/>
+      <dynamicTypes>
+        <add mimeType="text/*" enabled="true"/>
+        <add mimeType="message/*" enabled="true"/>
+        <add mimeType="application/javascript" enabled="true"/>
+        <add mimeType="*/*" enabled="false"/>
+      </dynamicTypes>
+      <staticTypes>
+        <add mimeType="text/*" enabled="true"/>
+        <add mimeType="message/*" enabled="true"/>
+        <add mimeType="application/javascript" enabled="true"/>
+        <add mimeType="*/*" enabled="false"/>
+      </staticTypes>
+    </httpCompression>
+    <urlCompression doStaticCompression="true" doDynamicCompression="true"/>
+    <handlers>
+      <remove name="OPTIONSVerbHandler"/>
+      <remove name="PageHandlerFactory-ISAPI-4.0_32bit"/>
+      <remove name="PageHandlerFactory-Integrated-4.0"/>
+      <remove name="PageHandlerFactory-ISAPI-4.0_64bit"/>
+      <remove name="captcha"/>
+      <remove name="ChartImageHandler"/>
+      <add name="all" path="*" verb="*" modules="IsapiModule" scriptProcessor="C:\Windows\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll" resourceType="Unspecified" requireAccess="None" preCondition="classicMode,runtimeVersionv4.0,bitness64"/>
+      <add name="html" path="*.html" verb="*" type="System.Web.UI.PageHandlerFactory" modules="ManagedPipelineHandler" scriptProcessor="" resourceType="Unspecified" requireAccess="Script" allowPathInfo="false" preCondition="integratedMode" responseBufferLimit="4194304"/>
+      <add name="captcha" path="CaptchaImage.aspx" verb="GET" type="WebControlCaptcha.CaptchaImageHandler, WebControlCaptcha" modules="ManagedPipelineHandler" scriptProcessor="" resourceType="Unspecified" requireAccess="Script" allowPathInfo="false" preCondition="" responseBufferLimit="4194304"/>
+      <add name="scriptresource2" verb="GET,HEAD" path="ScriptResource.axd" type="System.Web.Handlers.ScriptResourceHandler, System.Web.Extensions, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
+      <add name="try2success" path="t2s/*" verb="*" type="System.Web.UI.PageHandlerFactory" modules="ManagedPipelineHandler" scriptProcessor="" resourceType="Unspecified" requireAccess="Script" allowPathInfo="false" preCondition="integratedMode" responseBufferLimit="4194304"/>
+      <add name="ChartImageHandler" preCondition="integratedMode" verb="GET,HEAD" path="ChartImg.axd" type="System.Web.UI.DataVisualization.Charting.ChartHttpHandler, System.Web.DataVisualization, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"/>
+      <add name="PageHandlerFactory-ISAPI-4.0_64bit" path="*.aspx" verb="GET,HEAD,POST,DEBUG" modules="IsapiModule" scriptProcessor="C:\Windows\Microsoft.NET\Framework64\v4.0.30319\aspnet_isapi.dll" resourceType="Unspecified" requireAccess="Script" preCondition="classicMode,runtimeVersionv4.0,bitness64" responseBufferLimit="0"/>
+      <add name="PageHandlerFactory-Integrated-4.0" path="*.aspx" verb="GET,HEAD,POST,DEBUG" type="System.Web.UI.PageHandlerFactory" resourceType="Unspecified" requireAccess="Script" preCondition="integratedMode,runtimeVersionv4.0"/>
+      <add name="PageHandlerFactory-ISAPI-4.0_32bit" path="*.aspx" verb="GET,HEAD,POST,DEBUG" modules="IsapiModule" scriptProcessor="C:\Windows\Microsoft.NET\Framework\v4.0.30319\aspnet_isapi.dll" resourceType="Unspecified" requireAccess="Script" preCondition="classicMode,runtimeVersionv4.0,bitness32" responseBufferLimit="0"/>
+    </handlers>
+  </system.webServer>
+  <location path="SocialAuth">
+    <system.web>
+      <httpRuntime maxQueryStringLength="65535" maxRequestLength="65535"/>
+      <authorization>
+        <deny users="?"/>
+        <allow users="*"/>
+      </authorization>
+
+    </system.web>
+  </location>
+  <location path="managepage">
+    <system.web>
+      <authorization>
+        <allow roles="Admin"/>
+        <deny users="*" />
+      </authorization>
+    </system.web>
+  </location>
+
+
+  <system.web>
+    <globalization fileEncoding="UTF-8" requestEncoding="UTF-8" responseHeaderEncoding="UTF-8"/>
+    <compilation debug="true" targetFramework="4.0">
+      <assemblies>
+        <!--<add assembly="DevExpress.Web.ASPxGridView.v8.3, Version=8.3.4.0, Culture=neutral, PublicKeyToken=5377C8E3B72B4073"/>
+        <add assembly="DevExpress.Web.v8.3, Version=8.3.4.0, Culture=neutral, PublicKeyToken=5377C8E3B72B4073"/>
+        <add assembly="DevExpress.Data.v8.3, Version=8.3.4.0, Culture=neutral, PublicKeyToken=5377C8E3B72B4073"/>-->
+        <add assembly="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=B77A5C561934E089"/>
+        <add assembly="System.Design, Version=4.0.0.0, Culture=neutral, PublicKeyToken=B03F5F7F11D50A3A"/>
+        <add assembly="Microsoft.Build.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=B03F5F7F11D50A3A"/>
+        <add assembly="System.Management, Version=4.0.0.0, Culture=neutral, PublicKeyToken=B03F5F7F11D50A3A"/>
+        <add assembly="System.Web.Abstractions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
+        <add assembly="System.Web.Helpers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
+        <add assembly="System.Web.Routing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
+        <add assembly="System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
+        <add assembly="System.Web.WebPages, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"/>
+      </assemblies>
+    </compilation>
+    <authentication mode="Forms">
+      <forms loginUrl="/?page=dang-nhap" name="Try2Success" protection="All" timeout="525600"/>
+      <!--slidingExpiration="true"-->
+    </authentication>
+    <customErrors mode="Off">
+      <error redirect="/default.aspx" statusCode="404" />
+    </customErrors>
+    <membership>
+      <providers>
+        <clear/>
+        <add name="AspNetSqlMembershipProvider" type="System.Web.Security.SqlMembershipProvider" connectionStringName="ApplicationServices" enablePasswordRetrieval="false" enablePasswordReset="true" requiresQuestionAndAnswer="false" requiresUniqueEmail="false" maxInvalidPasswordAttempts="5" minRequiredPasswordLength="6" minRequiredNonalphanumericCharacters="0" passwordAttemptWindow="10" applicationName="/"/>
+      </providers>
+    </membership>
+    <profile>
+      <providers>
+        <clear/>
+        <add name="AspNetSqlProfileProvider" type="System.Web.Profile.SqlProfileProvider" connectionStringName="ApplicationServices" applicationName="/"/>
+      </providers>
+    </profile>
+    <roleManager enabled="false">
+      <providers>
+        <clear/>
+        <add name="AspNetSqlRoleProvider" type="System.Web.Security.SqlRoleProvider" connectionStringName="ApplicationServices" applicationName="/"/>
+        <add name="AspNetWindowsTokenRoleProvider" type="System.Web.Security.WindowsTokenRoleProvider" applicationName="/"/>
+      </providers>
+    </roleManager>
+    <pages controlRenderingCompatibilityVersion="4.0" clientIDMode="AutoID"/>
+  </system.web>
+  <system.webServer>
+    <modules runAllManagedModulesForAllRequests="true">
+    </modules>
+  </system.webServer>
+</configuration>
